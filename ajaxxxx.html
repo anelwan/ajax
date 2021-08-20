@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar AJAX</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            Launch demo modal
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Tambah Kelas</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="form-tambah">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input id="name" class="form-control" type="text" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <input id="description" class="form-control" type="text" name="description">
+                            </div>
+                            <div class="form-group">
+                                <label for="startDate">Start Date</label>
+                                <input id="startDate" class="form-control" type="date" name="startDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="endDate">End Date</label>
+                                <input id="endDate" class="form-control" type="date" name="enDate">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- MODAL EDIT -->
+        <div class="modal fade" id="modal-edit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Edit Kelas</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="form-edit">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input id="edit-name" class="form-control" type="text" name="name" required>
+                                <input id="edit-id" value="" hidden readonly />
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <input id="edit-description" class="form-control" type="text" name="description">
+                            </div>
+                            <div class="form-group">
+                                <label for="startDate">Start Date</label>
+                                <input id="edit-startDate" class="form-control" type="date" name="startDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="endDate">End Date</label>
+                                <input id="edit-endDate" class="form-control" type="date" name="enDate">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div id="data-kelas" class="row"></div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const API = `http://service-classroom.herokuapp.com/api/` //konekin API ke kodingan
+
+        $("#form-tambah").submit(function (e) { //fungsi kalo click submit sung masukin ke databasenya
+            e.preventDefault();
+            addClass()
+        });
+        $("#form-edit").submit(function (e) { //fungsi kalo click submit sung masukin ke databasenya
+            e.preventDefault();
+            editClass()
+        });
+
+        const addClass = async () => { //fungsi add / post di database
+            const data = { //const jenis object isinya data di form add
+                "name": $("#name").val(),
+                "description": $("#description").val(),
+                "startDate": $("#startDate").val(),
+                "endDate": $("#endDate").val()
+                /*yang kiri buat namain ini data apa yang kanan itu targetin ke value yang ada di form add*/
+            }
+            try {
+                const request = await axios.post(API + "class", data) //execute add progress
+                alert("sukses") //alert kalo dah sukses masukin datanya
+                $("#exampleModal").modal("hide") //hide modalnya
+                getListClass() // refresh data yang ada saat ini
+            } catch (err) { //notify kalo ada error
+                alert(err.message)
+            }
+        }
+
+        const getListClass = () => { //fungsi buat ambil list datanya ke kodingan
+            axios.get(API + "class") //buat targetin data yang ada di class
+                .then(response => { //buat ambil datanya
+                    let dataKelas = response.data.data //buat targetin isi datanya. note: harus tau dulu list datanya dimana
+                    console.log(dataKelas) //munculin list datanya di console log
+                    let listKelasHtml = "" //buat nyimpen action biar jadiin actionnya jadi string
+                    dataKelas.forEach(kelas => { //fungsi buat masukin datanya jadi string ke variabel listKelasHtml
+                        listKelasHtml += `
+                    <div class="col-md-3">
+                        <div class="card" >
+                            <img src="${kelas.img}" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">${kelas.name}</h5>
+                                <p class="card-text">${kelas.description}</p>
+                                <button type="button" onclick="getDetailClass(${kelas.id})" class="btn btn-outline-primary">Edit</button>
+                                <button type="button" onclick="confirmDelete(${kelas.id},'${kelas.name}')" class="btn btn-outline-danger">Delete</button>
+                            </div>
+                        </div>
+                    </div>`
+                    });
+                    $("#data-kelas").html(listKelasHtml)//buat ganttin id data-kelas jadi isi listKelasHtml
+
+                })
+                .catch(err => console.log(err)) //kalo error ada notify
+        }
+        getListClass() //manggil fungsi manual biar langsung ada list datanya
+
+        // edit start
+        const getDetailClass = async (classId) => { //fungsi buat jalanin modalnya
+            try {
+                const requestData = await axios.get(API + "class/" + classId) //buat targetin APInya 
+                const dataKelas = requestData.data.data //buat targetin file datanya
+                $("#edit-id").val(dataKelas.id)
+                $("#edit-name").val(dataKelas.name)
+                $("#edit-description").val(dataKelas.description)
+                $("#edit-startDate").val(dataKelas.startDate)
+                $("#edit-endDate").val(dataKelas.endDate) // buat targetin data di htmlnya dan ngisi value ke inputannya
+                $("#modal-edit").modal("show") //buat munculin modalnya
+            } catch (err) {
+                alert(err.message) //munculin message kalo error
+            }
+        }
+
+        const editClass = async () => { //fungsi buat edit datanya
+            const data = {
+                "id": $("#edit-id").val(),
+                "name": $("#edit-name").val(),
+                "description": $("#edit-description").val(),
+                "startDate": $("#edit-startDate").val(),
+                "endDate": $("#edit-endDate").val() //buat target data di htmlnya
+            }
+            try {
+                const request = await axios.put(API + "class", data) //execute edit progress
+                alert("sukses") //infoin kalo sukses
+                $("#modal-edit").modal("hide") //hide modalnya
+                getListClass() //refresh data
+            } catch (err) {
+                alert(err.message) //kalo ada error notify
+            }
+        }
+        //edit end
+        //delete start
+        const confirmDelete = async (classId, name) => { //jalanin sweet alert delete
+            Swal.fire({ //sweet alertnya
+                title: 'Are you sure?',
+                text: "Menghapus data kelas " + name,
+                icon: 'warning',
+                showCancelButton: true,
+            }).then((result) => {
+                console.log(result)
+                if (result.isConfirmed) {
+                    deleteClass(classId) //manggil fungsi kalo pencet confirm
+                }
+            })
+        }
+
+        const deleteClass = async (classId) => { //fungsi delete
+            try {
+                const requestDelete = await axios.delete(API + "class/" + classId) //execute delete progress
+                getListClass() // refresh data 
+                Swal.fire( //alert kalo udah selesai di delete
+                    'Deleted!',
+                    'Your file has been deleted.',
+                    'success'
+                )
+
+            } catch (err) {
+                alert(err.message) //kalo error notify
+            }
+        }
+    </script>
+</body>
+
+</html>
