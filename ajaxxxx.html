@@ -14,12 +14,12 @@
     <h1>SANDBOX BUKU</h1>
     <br>
     <div class="container">
-        <!-- Button trigger modal -->
+
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal">
             Add Something
         </button>
 
-        <!-- Modal -->
+ 
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -56,7 +56,7 @@
                 </div>
             </div>
         </div>
-        <!-- MODAL EDIT -->
+
         <div class="modal fade" id="modal-edit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -103,42 +103,42 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        const API = `http://service-classroom.herokuapp.com/api/` //konekin API ke kodingan
+        const API = `http://service-classroom.herokuapp.com/api/` 
 
-        $("#form-tambah").submit(function (e) { //fungsi kalo click submit sung masukin ke databasenya
+        $("#form-tambah").submit(function (e) { 
             e.preventDefault();
             addClass()
         });
-        $("#form-edit").submit(function (e) { //fungsi kalo click submit sung masukin ke databasenya
+        $("#form-edit").submit(function (e) { 
             e.preventDefault();
             editClass()
         });
 
-        const addClass = async () => { //fungsi add / post di database
-            const data = { //const jenis object isinya data di form add
+        const addClass = async () => { 
+            const data = { 
                 "name": $("#name").val(),
                 "description": $("#description").val(),
                 "startDate": $("#startDate").val(),
                 "endDate": $("#endDate").val()
-                /*yang kiri buat namain ini data apa yang kanan itu targetin ke value yang ada di form add*/
+              
             }
             try {
-                const request = await axios.post(API + "class", data) //execute add progress
-                alert("sukses") //alert kalo dah sukses masukin datanya
-                $("#exampleModal").modal("hide") //hide modalnya
-                getListClass() // refresh data yang ada saat ini
-            } catch (err) { //notify kalo ada error
+                const request = await axios.post(API + "class", data)
+                alert("sukses")
+                $("#exampleModal").modal("hide")
+                getListClass() 
+            } catch (err) { 
                 alert(err.message)
             }
         }
 
-        const getListClass = () => { //fungsi buat ambil list datanya ke kodingan
-            axios.get(API + "class") //buat targetin data yang ada di class
-                .then(response => { //buat ambil datanya
-                    let dataKelas = response.data.data //buat targetin isi datanya. note: harus tau dulu list datanya dimana
-                    console.log(dataKelas) //munculin list datanya di console log
-                    let listKelasHtml = "" //buat nyimpen action biar jadiin actionnya jadi string
-                    dataKelas.forEach(kelas => { //fungsi buat masukin datanya jadi string ke variabel listKelasHtml
+        const getListClass = () => { 
+            axios.get(API + "class")
+                .then(response => { 
+                    let dataKelas = response.data.data 
+                    console.log(dataKelas) 
+                    let listKelasHtml = ""
+                    dataKelas.forEach(kelas => { 
                         listKelasHtml += `
                     <div class="col-md-3">
                         <div class="card" >
@@ -151,30 +151,30 @@
                         </div>
                     </div>`
                     });
-                    $("#data-kelas").html(listKelasHtml)//buat ganttin id data-kelas jadi isi listKelasHtml
+                    $("#data-kelas").html(listKelasHtml)
 
                 })
-                .catch(err => console.log(err)) //kalo error ada notify
+                .catch(err => console.log(err)) 
         }
-        getListClass() //manggil fungsi manual biar langsung ada list datanya
+        getListClass() 
 
-        // edit start
-        const getDetailClass = async (classId) => { //fungsi buat jalanin modalnya
+  
+        const getDetailClass = async (classId) => { 
             try {
-                const requestData = await axios.get(API + "class/" + classId) //buat targetin APInya 
-                const dataKelas = requestData.data.data //buat targetin file datanya
+                const requestData = await axios.get(API + "class/" + classId) 
+                const dataKelas = requestData.data.data 
                 $("#edit-id").val(dataKelas.id)
                 $("#edit-name").val(dataKelas.name)
                 $("#edit-description").val(dataKelas.description)
                 $("#edit-startDate").val(dataKelas.startDate)
-                $("#edit-endDate").val(dataKelas.endDate) // buat targetin data di htmlnya dan ngisi value ke inputannya
-                $("#modal-edit").modal("show") //buat munculin modalnya
+                $("#edit-endDate").val(dataKelas.endDate) 
+                $("#modal-edit").modal("show") 
             } catch (err) {
-                alert(err.message) //munculin message kalo error
+                alert(err.message) 
             }
         }
 
-        const editClass = async () => { //fungsi buat edit datanya
+        const editClass = async () => { 
             const data = {
                 "id": $("#edit-id").val(),
                 "name": $("#edit-name").val(),
@@ -182,18 +182,16 @@
 
             }
             try {
-                const request = await axios.put(API + "class", data) //execute edit progress
-                alert("sukses") //infoin kalo sukses
-                $("#modal-edit").modal("hide") //hide modalnya
-                getListClass() //refresh data
+                const request = await axios.put(API + "class", data) 
+                alert("sukses") 
+                $("#modal-edit").modal("hide") 
+                getListClass() 
             } catch (err) {
-                alert(err.message) //kalo ada error notify
+                alert(err.message) 
             }
         }
-        //edit end
-        //delete start
-        const confirmDelete = async (classId, name) => { //jalanin sweet alert delete
-            Swal.fire({ //sweet alertnya
+        const confirmDelete = async (classId, name) => {
+            Swal.fire({ 
                 title: 'Are you sure?',
                 text: "Menghapus data kelas " + name,
                 icon: 'warning',
@@ -201,24 +199,24 @@
             }).then((result) => {
                 console.log(result)
                 if (result.isConfirmed) {
-                    deleteClass(classId) //manggil fungsi kalo pencet confirm
+                    deleteClass(classId) 
                 }
             })
         }
 
 
-        const deleteClass = async (classId) => { //fungsi delete
+        const deleteClass = async (classId) => { 
             try {
-                const requestDelete = await axios.delete(API + "class/" + classId) //execute delete progress
-                getListClass() // refresh data 
-                Swal.fire( //alert kalo udah selesai di delete
+                const requestDelete = await axios.delete(API + "class/" + classId) 
+                getListClass() 
+                Swal.fire( 
                     'Deleted!',
                     'Your file has been deleted.',
                     'success'
                 )
 
             } catch (err) {
-                alert(err.message) //kalo error notify
+                alert(err.message) 
             }
         }
     </script>
